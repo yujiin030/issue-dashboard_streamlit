@@ -204,7 +204,3 @@ with tab3:
         for title in st.session_state.favorites:
             link = df[df["title"] == title]["link"].values[0]
             st.markdown(f"- [{title}]({link})")
-            
-            
-            
-            600
