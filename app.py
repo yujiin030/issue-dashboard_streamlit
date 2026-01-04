@@ -5,6 +5,7 @@ from collections import Counter
 import re
 from wordcloud import WordCloud
 import matplotlib.pyplot as plt
+import os
 from datetime import datetime
 
 # 기본 설정
@@ -12,6 +13,8 @@ st.set_page_config(
     page_title="오늘의 이슈 대시보드",
     layout="wide"
 )
+FONT_PATH = os.path.join("fonts", "NanumGothicBold.ttf")
+
 
 st.title("📰 오늘의 이슈 대시보드")
 st.caption("실시간 뉴스 크롤링 기반 키워드 트렌드 분석")
@@ -126,7 +129,7 @@ with tab1:
 
             if show_wordcloud:
                 wc = WordCloud(
-                    font_path="C:/Windows/Fonts/malgun.ttf",
+                    font_path=FONT_PATH,
                     background_color="white",
                     width=600,
                     height=300
@@ -202,3 +205,6 @@ with tab3:
             link = df[df["title"] == title]["link"].values[0]
             st.markdown(f"- [{title}]({link})")
             
+            
+            
+            600
