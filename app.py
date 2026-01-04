@@ -16,6 +16,10 @@ st.set_page_config(
 st.title("📰 오늘의 이슈 대시보드")
 st.caption("실시간 뉴스 크롤링 기반 키워드 트렌드 분석")
 
+# session_state 초기화 (즐겨찾기)
+if "favorites" not in st.session_state:
+    st.session_state.favorites = set()
+
 # 사이드바 (컨트롤 센터)
 st.sidebar.header("⚙️ 대시보드 설정")
 
@@ -30,7 +34,7 @@ max_page = st.sidebar.slider(
 )
 
 search_term = st.sidebar.text_input(
-    "🔍 제목 검색",
+    "🔍 기사 제목 검색",
     placeholder="예: 삼성, 금리, AI"
 )
 
@@ -71,7 +75,7 @@ if search_term:
 st.metric("📰 수집 기사 수", len(df))
 
 # 탭 구성
-tab1, tab2 = st.tabs(["📊 요약 & 키워드 분석", "🗞 기사 목록"])
+tab1, tab2, tab3 = st.tabs(["📊 요약 & 키워드 분석", "📰 기사 목록", "⭐ 즐겨찾기"])
 
 # 📊 요약 & 키워드 분석
 with tab1:
@@ -143,9 +147,58 @@ with tab1:
 
                 st.bar_chart(word_df.set_index("단어"))
 
-# 🗞 기사 목록
+# 기사 목록
 with tab2:
-    st.subheader("기사 원문 바로가기")
+    st.subheader("📰 기사 목록")
+    
+    if df.empty:
+        st.info("표시할 기사가 없습니다.")
+        
+    else:
+        for idx, row in df.iterrows():
+            title = row["title"]
+            link = row["link"]
 
-    for _, row in df.iterrows():
-        st.markdown(f"- [{row['title']}]({row['link']})")
+            col1, col2 = st.columns([8, 1])
+
+            with col1:
+                st.markdown(
+                    f"""
+                    <div style="
+                        padding:14px;
+                        margin-bottom:10px;
+                        border-radius:12px;
+                        border:1px solid #e0e0e0;
+                        background-color:#fafafa;
+                    ">
+                        <a href="{link}" target="_blank"
+                           style="font-size:16px;
+                                  font-weight:600;
+                                  color:#333;
+                                  text-decoration:none;">
+                           {title}
+                        </a>
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
+
+            with col2:
+                if title in st.session_state.favorites:
+                    st.write("⭐")
+                else:
+                    if st.button("☆", key=f"fav_{idx}"):                    
+                        st.session_state.favorites.add(title)
+
+
+# 즐겨찾기 목록
+with tab3:
+    st.subheader("⭐ 즐겨찾기 기사")
+
+    if not st.session_state.favorites:
+        st.info("즐겨찾기한 기사가 없습니다.")
+    else:
+        for title in st.session_state.favorites:
+            link = df[df["title"] == title]["link"].values[0]
+            st.markdown(f"- [{title}]({link})")
+            
